@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Copyright 2013, Karljohan Lundin Palmerius
+
+This is a stubb for laborations on multi-modal display
+systems in the VR laboratory. It will disable the X3D
+navigation to allow for viewpoint calibration and tracking,
+and load libraries commonly used in the VR laboratory.
+
+-->
+<Group>
+  
+  <PythonScript url="urn:candy:python/CorrectViewpoint.py"/>
+  
+  <PythonScript url="urn:candy:python/AutoLoadSO.py"/>
+  
+  <PythonScript url="urn:candy:python/AutoLoadSO.py">
+    <MetadataString
+        name="library" value="vhtk" containerField="references"/>
+  </PythonScript>
+
+  <PythonScript DEF="MFtoSF" url="urn:candy:python/MFtoSFBool.py"/>  
+
+<!-- Comments 
+
+  - useRelativeValues="false" gör så att man kan ändra värdet på stiffness, inte mer än 1500 N/m.
+    Annars utan useRelativeValues, så är den "true". Då väljer du stiffness mellan 0 till 1. 
+ 
+  -->
+  
+  <SMViewpoint DEF="EXP_VIEW" screenLowerLeft="-0.25 -0.15 0.0" screenUpperRight="0.25 0.15 0.0" position='0.0 0.0 0.5'>
+  </SMViewpoint>
+
+<BooleanFilter DEF='booleanFilter' />
+<TimeTrigger DEF='timeTrigg' />
+  
+  <Transform translation = "0 0 0"
+	     rotation="1 0 1 0"
+	     scale="0.2 0.2 0.2">
+  <!-- Sitsen -->	
+    <Group DEF="Stol">
+	   <Transform DEF="Sits"
+	       translation="0 0 0">
+	     <Shape>
+		<Appearance>
+		   <Material diffuseColor="0.1 0.9 0.9"/>
+		   <FrictionalSurface useRelativeValues="false" stiffness="300" damping="0" />
+		</Appearance>
+	       <Box DEF = "Sits1" size="0.5 0.1 0.5" solid="TRUE"/>
+	     </Shape>
+	   </Transform>
+  <!-- Ryggen -->		   
+	   <Transform DEF="Rygg"
+	       translation="0 0.3 -0.2">
+	     <Shape>
+	       <Appearance>
+		 <Material diffuseColor="0.9 0.9 0.0"/>
+		 <FrictionalSurface useRelativeValues="false" stiffness="1500" damping="0" />
+		</Appearance>
+	       <Box size="0.5 0.5 0.1" solid="TRUE"/>
+	     </Shape>
+	   </Transform>
+	      
+  <!-- Benens definition -->	
+	   <Transform DEF="Framben"
+		      translation="0.2 -0.3 0.2">
+	     <Shape DEF="Ben">
+	       <Appearance>
+		 <Material diffuseColor="0.9 0.3 0.9"/>
+		 <FrictionalSurface useRelativeValues="false" stiffness="150" damping="0" />
+		</Appearance>
+	       <Box size="0.1 0.5 0.1" solid="TRUE"/>
+	     </Shape>
+	   </Transform>
+
+  <!-- Benen -->	
+	   <Transform DEF="Framben1"
+		      translation="-0.2 -0.3 0.2">
+	     <Shape USE="Ben"/>
+	   </Transform>
+	   
+	   <Transform DEF="Bakben1"
+		      translation="0.2 -0.3 -0.2">
+	     <Shape USE="Ben"/>
+	   </Transform>	   
+	   
+	   <Transform DEF="Bakben2"
+		      translation="-0.2 -0.3 -0.2">
+	     <Shape USE="Ben"/>
+	   </Transform>	   
+    </Group>   
+  </Transform>
+	 
+   <!-- Använder vår definierade group med ny translation -->	
+	<Transform translation = "0.2 0 -0.2"
+	     rotation="0 1 0 1"
+	     scale="0.2 0.2 0.2">
+	  <Group USE="Stol"/>
+	</Transform>
+
+<!-- Importerar ljudklipp  -->	
+  <Group> 
+    <Sound> 
+      <AudioClip DEF="AUDIO" url="ImFine.wav" loop="FALSE"/> 
+    </Sound> 
+  </Group>
+
+  <ROUTE fromNode="Sits1" fromField="isTouched" toNode="MFtoSF" toField="value" /> 
+  <ROUTE fromNode="MFtoSF" fromField="value" toNode="booleanFilter" toField="set_boolean" /> 
+  <ROUTE fromNode="booleanFilter" fromField="inputTrue" toNode="timeTrigg" toField="set_boolean" /> 
+  <ROUTE fromNode="timeTrigg" fromField="triggerTime" toNode="AUDIO" toField="startTime" /> 
+  
+  
+</Group>
